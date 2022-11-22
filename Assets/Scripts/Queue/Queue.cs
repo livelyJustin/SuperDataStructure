@@ -6,8 +6,8 @@ using System;
 public sealed class Queue<T> : IEnumerable<T>
 {
     // 링버퍼 구조로 구현하세요
-    int front = -1;
-    int rear = -1;
+    int front = 0;
+    int rear = 0;
     int capacity;
     const int defaultCapacity = 4;
     public int Count { private set; get; } = 0;
@@ -21,7 +21,7 @@ public sealed class Queue<T> : IEnumerable<T>
 
     public T Peek()
     {
-        if (front == -1)
+        if (Count <= 0)
             throw new Exception($"Queue is Empty");
 
         return arr[front];
@@ -29,7 +29,7 @@ public sealed class Queue<T> : IEnumerable<T>
 
     public bool Contains(T value)
     {
-        if (front == -1)
+        if (Count <= 0)
             throw new Exception($"Queue is Empty"); // 정책에 따라 False가 조금 더 적합.
 
         for (int i = front; i < Count + front; i++)
@@ -44,11 +44,11 @@ public sealed class Queue<T> : IEnumerable<T>
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
     public IEnumerator<T> GetEnumerator()
     {
-        if (front == -1)
+        if (Count <= 0)
             throw new Exception($"Queue is Empty"); // 정책에 따라 False가 조금 더 적합.
 
         for (int i = front; i < Count + front; i++)
-            yield return arr[i % arr.Length];
+            yield return arr[(i) % capacity];
     }
 
     public void Enqueue(T value)
@@ -61,42 +61,49 @@ public sealed class Queue<T> : IEnumerable<T>
 
         // if (EqualityComparer<T>.Default.Equals(value, default(T)))
         //     throw new Exception($"{nameof(value)}is not vaild");
+        // if (front == -1)
+        // {
+        //     front = rear = 0;
+        // }
+        // else
 
-        if (capacity <= Count + 1)
+
+        if ((rear + 1) % capacity == (front + 1 % capacity))
         {
-            capacity = capacity << 1;
-            Array.Resize(ref arr, capacity);
+            Debug.Log("array full: " + Count + capacity);
+            // 범위가 부족하다면 늘려주고 
+            if (capacity <= Count + 1)
+            {
+                Debug.Log("real array full");
+                capacity = capacity << 1;
+                Array.Resize(ref arr, capacity);
+            }
+            // 아니라면 배열의 처음부터 다시 채운다 (
         }
-
-        if (front == -1)
-            front++;
-
+        // front = (front + 1) % arr.Length;
+        arr[rear] = value;
+        rear = (rear + 1) % capacity;
         Count++;
-        /* 순환구조로 수정 필요
-
-        front가 1보다 크거나 같으면 면 배열에 이동이 있던 것이니 
-        rear가 capacity에 도달했을 때 count 가 여유가 있으면 다시 나눠준다.
-        순환으로 만드는 중 ....
-        
-        */
         // arr[rear] = value;
 
-        arr[++rear] = value;
+        // Debug.Log($"프론트: {front} {arr[front]} 리어: {rear} {arr[rear]}");
     }
 
 
     public T Dequeue()
     {
-        if (front == -1)
+        if (Count <= 0)
             throw new Exception($"Queue is Empty");
 
         T returnData = arr[front];
         arr[front] = default;
 
-        if (front == rear)
-            front = rear = -1;
-        else
-            front++;
+        // if (front == rear)
+        //     front = rear = -1;
+        // else
+        //     front++;
+
+        front = (front + 1) % capacity;
 
         Count--;
 
@@ -105,13 +112,13 @@ public sealed class Queue<T> : IEnumerable<T>
 
     public void Clear()
     {
-        if (front == -1)
+        if (Count <= 0)
             throw new Exception($"Queue is Empty");
 
         for (int i = front; i < Count + front; i++)
             arr[i % arr.Length] = default;
 
-        front = rear = -1;
+        front = rear = 0;
         Count = 0;
     }
 }
