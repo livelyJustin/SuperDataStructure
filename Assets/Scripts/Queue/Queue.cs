@@ -76,7 +76,8 @@ public sealed class Queue<T> : IEnumerable<T>
 
         front가 1보다 크거나 같으면 면 배열에 이동이 있던 것이니 
         rear가 capacity에 도달했을 때 count 가 여유가 있으면 다시 나눠준다.
-
+        순환으로 만드는 중 ....
+        
         */
         // arr[rear] = value;
 
