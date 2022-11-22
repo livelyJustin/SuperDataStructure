@@ -10,6 +10,8 @@ namespace Justin
         protected override void OnLog()
         {
             Debug.Log("zz");
+
+                    Debug.Log("gk"); 
             var aList = new List<int>();
             aList.Add(2);
             // 2
