@@ -1,6 +1,7 @@
 // using System.Collections;
 // using System.Collections.Generic;
 // using UnityEngine;
+// using System;
 
 // namespace Justin
 // {
@@ -10,7 +11,7 @@
 //         public int Count { private set; get; } = 0;
 
 //         LinkedListNode<T> head = null;
-//         LinkedListNode<T> current = null;
+//         // LinkedListNode<T> current = null;
 //         LinkedListNode<T> tail = null;
 
 //         public LinkedListNode<T> Head
@@ -29,13 +30,13 @@
 //         public bool Contains(T value)
 //         {
 //             // 1번 부터 뒤로 돌면서 찾기
-//             current = head;
+//             var node = head;
 //             for (int i = 0; i < Count; i++)
 //             {
-//                 if (EqualityComparer<T>.Default.Equals(current.Value, value))
+//                 if (EqualityComparer<T>.Default.Equals(node.Value, value))
 //                     return true;
 
-//                 current = current.Next;
+//                 node = node.next;
 //             }
 //             return false;
 //         }
@@ -43,14 +44,28 @@
 //         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 //         public IEnumerator<T> GetEnumerator()
 //         {
-//             current = head;
+//             var node = head;
 
 //             for (int i = 0; i < Count; i++)
 //             {
 //                 //Debug.Log($"cur node: {current.Value}");
-//                 yield return current.Value;
-//                 current = current.Next;
+//                 yield return node.Value;
+//                 node = node.next;
 //             }
+//         }
+
+//         void ConnectAB(LinkedListNode<T> nodeAdd, LinkedListNode<T> nodeNext)
+//         {
+//             if (nodeAdd == null)
+//                 throw new Exception($"{nameof(nodeAdd)}가 null 입니다");
+//             if (nodeNext == null)
+//                 throw new Exception($"{nameof(nodeNext)}가 null 입니다");
+
+//             nodeAdd.prev = nodeNext.prev; // A노드의 이전 노드를 B노드의 이전 노드와 연결
+//             nodeNext.prev.next = nodeAdd;
+
+//             nodeAdd.next = nodeNext;
+//             nodeNext.prev = nodeAdd;
 //         }
 
 
@@ -67,11 +82,11 @@
 //             {
 //                 head = node;
 //                 Tail = head;
-//                 Tail.Prev = head;
+//                 Tail.prev = head;
 //             }
 //             else
 //             {
-//                 node.Next = head;
+//                 node.next = head;
 //                 head = node;
 //             }
 
@@ -145,6 +160,9 @@
 
 //         public bool Remove(T value)
 //         {
+//             if (head == null)
+//                 return false;
+
 //             current = head;
 //             for (int i = 0; i < Count; i++)
 //             {
