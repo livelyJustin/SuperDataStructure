@@ -6,44 +6,29 @@ using System;
 public class BinarySerachTree<T> : IEnumerable<T>
 {
     public int Count { private set; get; } = 0;
-    BSTNode<T> root;
-    public BSTNode<T> Root
-    {
-        private set
-        {
-            root.data = value.data ?? default;
-            root.leftnode = value?.leftnode ?? default;
-            root.rightnode = value?.rightnode ?? default;
-        }
-        get { return root; }
-    }
+    public BSTNode<T> Root { private set; get; } = null;
     public IComparer<T> Comparer { private set; get; } = null; // 생성자에서 따로 넣을 수 있게
 
     public bool Contains(T value)
     {
         BSTNode<T> node = Find(value);
 
-        int result = Comparer<T>.Default.Compare(node.data, value);
-        if (result == 0)
+        if (node != null)
             return true;
 
         return false;
     }
-    public void FindTest(T value)
-    {
-        FindMySelf(root, value);
-    }
-    void FindMySelf(BSTNode<T> node, T value)
-    {
-        if (node != null)
-        {
-            int result = Comparer<T>.Default.Compare(node.data, value);
-            if (result == 0)
-                Debug.Log($"찾았당 {node.data} {value}");
 
-            FindMySelf(node.leftnode, value);
-            Debug.Log(node.data);
-            FindMySelf(node.rightnode, value);
+    void FindAndChangeNode(BSTNode<T> from_node, T value, ref BSTNode<T> to_node)
+    {
+        if (from_node != null)
+        {
+            int result = Comparer<T>.Default.Compare(from_node.data, value);
+            if (result == 0)
+                to_node = from_node;
+
+            FindAndChangeNode(from_node.leftnode, value, ref to_node);
+            FindAndChangeNode(from_node.rightnode, value, ref to_node);
         }
     }
 
@@ -52,30 +37,12 @@ public class BinarySerachTree<T> : IEnumerable<T>
         if (Count <= 0)
             throw new Exception("Tree is Empty - Contains");
 
-        BSTNode<T> node = root;
+        BSTNode<T> node = new BSTNode<T>(default);
+        FindAndChangeNode(Root, value, ref node);
 
-        while (node != null) // 재귀처리를 하는게 더 편하다.
-        {
-            int result = Comparer<T>.Default.Compare(node.data, value);
-            if (result == 0)
-                return node;
-            // 그 다음 데이터와 비교
-            else if (result > 0)
-            {
-                int leftresult = Comparer<T>.Default.Compare(node.leftnode.data, value);
-                // 전위, 중위, 후위가 더 편하다.
-                if (leftresult == 0)
-                    return node;
-                node = node.leftnode;
-            }
-            else
-            {
-                int rightnode = Comparer<T>.Default.Compare(node.rightnode.data, value);
-                if (rightnode == 0)
-                    return node;
-                node = node.rightnode;
-            }
-        }
+        if (null != node)
+            return node;
+
         return null;
     }
 
@@ -84,7 +51,7 @@ public class BinarySerachTree<T> : IEnumerable<T>
         if (Count < 0)
             throw new Exception("Tree is Empty - Contains");
 
-        BSTNode<T> node = root;
+        BSTNode<T> node = Root;
         BSTNode<T> parent;
 
         while (node.data != null) // fake null 이슈!!!!! 부들부들 null이 왜생기는거야!!!!
@@ -134,7 +101,7 @@ public class BinarySerachTree<T> : IEnumerable<T>
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
     public IEnumerator<T> GetEnumerator()
     {
-        BSTNode<T> node = root;
+        BSTNode<T> node = Root;
         if (node != null)
         {
             // 노드를 strucuture 구조로 사용
@@ -181,61 +148,52 @@ public class BinarySerachTree<T> : IEnumerable<T>
         return maxVal;
     }
 
-    public void Insert(T value)
+    public void Add(BSTNode<T> node, T value)
     {
-        BSTNode<T> node = root;
-
         if (Count == 0)
         {
-            root = new BSTNode<T>(value);
+            Root = new BSTNode<T>(value);
             Count++;
             return;
         }
 
-        while (node != null)
+        if (node != null)
         {
-            // Debug.Log($"insert: {node.data} value: {value} ");
-
             int result = Comparer<T>.Default.Compare(node.data, value);
+            if (result == 0) throw new Exception("Duplicate value");
 
-            if (result == 0)
-            {
-                throw new Exception("Duplicate value");
-            }
             else if (result > 0)
             {
-                if (node.leftnode == default)
+                if (node.leftnode == null)
                 {
                     node.leftnode = new BSTNode<T>(value);
-                    // Debug.Log($"nodeleft: {node.leftnode.data} value: {value} ");
-                    Count++;
-                    return;
+                    Count++; return;
                 }
                 node = node.leftnode;
             }
-            else
+            else if (result < 0)
             {
-                if (node.rightnode == default)
+                if (node.rightnode == null)
                 {
                     node.rightnode = new BSTNode<T>(value);
-                    // Debug.Log($"rightnode: {node.rightnode.data} value: {value} ");
-
-                    Count++;
-                    return;
+                    Count++; return;
                 }
                 node = node.rightnode;
             }
+            Add(node, value);
         }
     }
-
-
+    public void Insert(T value)
+    {
+        Add(Root, value);
+    }
 
     public bool Remove(T value)
     {
         if (Count < 0) // false
             throw new Exception("Tree is Empty - Remove");
 
-        BSTNode<T> node = root;
+        BSTNode<T> node = Root;
         node = Find(value);
         Debug.Log(node.data);
 
@@ -306,8 +264,8 @@ public class BinarySerachTree<T> : IEnumerable<T>
 
     public void Clear()
     {
-        BSTNode<T> node = root;
-        if (root != null)
+        BSTNode<T> node = Root;
+        if (Root != null)
         {
 
         }
