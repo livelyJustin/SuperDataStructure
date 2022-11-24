@@ -14,14 +14,23 @@ public sealed class Dictionary<K, T> : IEnumerable<KeyValuePair<K, T>>
     Entry[] arr = null;
 
     // 테스트중
-    int[] bucket = new int[4] { -1, -1, -1, -1 }; // 버켓을 초기화 할 때 -1로 모두 변경해주어야 한다.
-    Entry[] entries = new Entry[4];
+    int[] bucket; // 버켓을 초기화 할 때 -1로 모두 변경해주어야 한다.
+    Entry[] entries;
 
 
     public Dictionary()
     {
         arr = new Entry[defaultCapacity];
+        bucket = new int[defaultCapacity];
+        entries = new Entry[defaultCapacity];
         capacity = defaultCapacity;
+
+        for (int i = 0; i < entries.Length; i++)
+        {
+            bucket[i] = -1;
+            entries[i].next = -1;
+            entries[i].hashCode = -1;
+        }
     }
     public T this[K key]
     {
@@ -92,31 +101,63 @@ public sealed class Dictionary<K, T> : IEnumerable<KeyValuePair<K, T>>
         capacity = capacity << 1;
 
         Entry[] newEntries = new Entry[capacity];
-        int[] newBuck = new int[capacity];
+        // int[] newBuck = new int[capacity];
 
-        for (int i = 0; i < bucket.Length; i++)
+        for (int i = 0; i < newEntries.Length; i++)
         {
-            if (bucket[i] != -1)
+            if (newEntries[i].hashCode != -1) // 버켓 크기는 채우지 않고, 엔트리스만 키우자
             {
-                newBuck[i] = bucket[i];
+                // newBuck[i] = bucket[i]; // 버켓은 키우지 말자
                 newEntries[i] = entries[i];
             }
         }
 
         entries = newEntries;
-        bucket = newBuck;
+        // bucket = newBuck;
     }
 
 
     public bool Add(K key, T value)
     {
+        // 범위 넓혀주기
         if (Count + 1 == capacity)
             ReHashing();
 
         int index = ConvertHashIdx(key);
 
+        // 만약 해당 영역에 뭐가 있으면
         if (bucket[index] != -1)
         {
+            // Entry로 가서 해당 영역의 넥스트가 있는지 체크한다.
+            if (entries[index].next == -1) // 넥스트가 비어있을 때 남은 영역에 채운다.
+            {
+                for (int i = 0; i < entries.Length; i++)
+                {
+                    // 해당 Entry가 비어있는지는 Hashcode 값을 통해 비교
+                    if (entries[i].hashCode == -1)
+                    {
+                        entries[i].hashCode = index; // i는 Entry배열 속 위치일뿐이고 index가 실제 해쉬코드가 되기에 index저장
+                        entries[index].next = i;
+                    }
+                }
+            }
+            // entry의 넥스트가 이미 존재하는 경우
+            else
+            {
+
+
+                // for (int i = 0; i < entries.Length; i++)
+                // {
+                //     if (entries[i].hashCode == -1)
+                //     {
+                //         entries[i].hashCode = index;
+                //         entries[index].next = i;
+                //     }
+                // }
+                // int tem = entries[index].next;
+                // entries[entries[index].next].hashCode = -1;
+            }
+
             for (int i = index; i < bucket.Length + index; i++)
             {
                 int temp = i % bucket.Length;
@@ -133,7 +174,7 @@ public sealed class Dictionary<K, T> : IEnumerable<KeyValuePair<K, T>>
         }
         else
         {
-            entries[index] = new Entry(key, value, 0, index);
+            entries[index] = new Entry(key, value, -1, index);
             bucket[index] = index;
         }
 

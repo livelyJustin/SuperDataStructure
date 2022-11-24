@@ -17,6 +17,11 @@ public class DictionaryTest : StudyBase
         map.Add(103, "김태희");
         map.Add(104, "도민준");
 
+
+        map.Add(102, "루피");
+        map.Add(102, "조로");
+        map.Add(102, "나루토");
+        map.Add(102, "사스케");
         map.LogValues();
 
         // map.Add(302, "김도윤");
