@@ -26,10 +26,12 @@ public class BinarySerachTree<T> : IEnumerable<T>
             int result = Comparer<T>.Default.Compare(from_node.data, value);
             if (result == 0)
                 to_node = from_node;
-
             FindAndChangeNode(from_node.leftnode, value, ref to_node);
+
             FindAndChangeNode(from_node.rightnode, value, ref to_node);
         }
+
+
     }
 
     public BSTNode<T> Find(T value)
@@ -157,6 +159,7 @@ public class BinarySerachTree<T> : IEnumerable<T>
             return;
         }
 
+        // Debug.Log($" node는 Null과 같음?(유니티)): {node == null} system Null과 같음?: {ReferenceEquals(node, null)}");
         if (node != null)
         {
             int result = Comparer<T>.Default.Compare(node.data, value);

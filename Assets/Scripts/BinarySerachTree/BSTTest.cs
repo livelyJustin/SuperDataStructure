@@ -16,7 +16,7 @@ public class BSTTest : StudyBase
         // Log(bTree.Contains(5));
         // Log(bTree.Remove(5));
         bTree.Insert(15);
-        bTree.FindTest(15);
+        Log(bTree.Find(15).data);
         // 5 9 10 15
         // bTree.LogValues();
         // bTree.Insert(2);
